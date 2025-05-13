@@ -44,11 +44,12 @@ export default function Home() {
   useEffect(() => {
     const fetchPokemons = async () => {
       setLoading(true);
+
       const queryParams = new URLSearchParams({
         page: page.toString(),
         limit: limit.toString(),
-        name: nameFilter,
-        types: selectedTypes.join(","),
+        ...(nameFilter && { name: nameFilter }),
+        ...(selectedTypes.length > 0 && { types: selectedTypes.join(",") }),
       });
 
       const response = await fetch(
@@ -56,15 +57,18 @@ export default function Home() {
       );
       const data = await response.json();
 
-      setPokemons((prev) => {
-        const combined = [...prev, ...data];
-        const uniquePokemons = Array.from(
-          new Map(
-            combined.map((pokemon) => [pokemon.pokedexId, pokemon])
-          ).values()
-        );
-        return uniquePokemons;
-      });
+      setPokemons((prev) =>
+        page === 1
+          ? data
+          : Array.from(
+              new Map(
+                [...prev, ...data].map((pokemon) => [
+                  pokemon.pokedexId,
+                  pokemon,
+                ])
+              ).values()
+            )
+      );
 
       setLoading(false);
     };
@@ -87,17 +91,22 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [nameFilter, selectedTypes]);
+
   return (
     <div className="p-4">
       <h1 className="text-4xl font-bold text-center mb-6 text-white">
         Pokedex
       </h1>
+
       <div className="mb-4">
         <TextField
           variant="outlined"
           fullWidth
-          placeholder="Search by name"
-          onChange={(e) => setNameFilter(e.target.value)}
+          placeholder="Filtre par nom"
+          onChange={(e) => setNameFilter(e.target.value.trim())}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -107,6 +116,7 @@ export default function Home() {
           }}
           className="mb-4"
         />
+
         <div className="flex flex-wrap gap-2">
           {types.map((type) => (
             <button
@@ -130,6 +140,7 @@ export default function Home() {
           ))}
         </div>
       </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {pokemons.map((pokemon) => (
           <Link
@@ -157,7 +168,8 @@ export default function Home() {
           </Link>
         ))}
       </div>
-      {loading && <p className="text-center mt-4">Loading...</p>}{" "}
+
+      {loading && <p className="text-center mt-4">Loading...</p>}
     </div>
   );
 }

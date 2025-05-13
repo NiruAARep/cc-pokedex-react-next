@@ -120,7 +120,7 @@ export default function Home() {
             href={`/pokemon/${pokemon.pokedexId}`}
             key={`${pokemon.pokedexId}-${pokemon.name}`}
           >
-            <div className="border p-4 rounded cursor-pointer hover:shadow-lg">
+            <div className="border p-4 rounded bg-white shadow-lg hover:shadow-2xl hover:scale-105 cursor-pointer transition-transform transition-shadow duration-300">
               <img
                 src={pokemon.image}
                 alt={pokemon.name}

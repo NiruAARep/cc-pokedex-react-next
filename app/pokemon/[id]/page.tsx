@@ -66,7 +66,7 @@ export default function PokemonDetails({ params }: { params: { id: string } }) {
       >
         Back to Pokedex
       </button>
-      <div className="border p-4 rounded">
+      <div className="border p-4 rounded bg-white shadow-lg hover:shadow-2xl transition-shadow duration-300">
         <img
           src={pokemon.image}
           alt={pokemon.name}

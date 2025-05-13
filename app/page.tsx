@@ -1,103 +1,147 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+
+interface PokemonType {
+  id: number;
+  name: string;
+  image: string;
+}
+
+interface Pokemon {
+  id: number;
+  pokedexId: number;
+  name: string;
+  image: string;
+  types: PokemonType[];
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+  const [types, setTypes] = useState<PokemonType[]>([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(50);
+  const [nameFilter, setNameFilter] = useState("");
+  const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
+  const [loading, setLoading] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const fetchTypes = async () => {
+      const response = await fetch(
+        "https://nestjs-pokedex-api.vercel.app/types"
+      );
+      const data = await response.json();
+      setTypes(data);
+    };
+
+    fetchTypes();
+  }, []);
+
+  useEffect(() => {
+    const fetchPokemons = async () => {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+        name: nameFilter,
+        types: selectedTypes.join(","),
+      });
+
+      const response = await fetch(
+        `https://nestjs-pokedex-api.vercel.app/pokemons?${queryParams.toString()}`
+      );
+      const data = await response.json();
+
+      setPokemons((prev) => {
+        const combined = [...prev, ...data];
+        const uniquePokemons = Array.from(
+          new Map(
+            combined.map((pokemon) => [pokemon.pokedexId, pokemon])
+          ).values()
+        );
+        return uniquePokemons;
+      });
+
+      setLoading(false);
+    };
+
+    fetchPokemons();
+  }, [page, nameFilter, selectedTypes]);
+
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight &&
+      !loading
+    ) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [loading]);
+
+  return (
+    <div className="p-4">
+      <h1 className="text-4xl font-bold text-center mb-6">Pokedex</h1>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by name"
+          className="border p-2 w-full mb-4"
+          onChange={(e) => setNameFilter(e.target.value)}
+        />
+        <div className="flex flex-wrap gap-2">
+          {types.map((type) => (
+            <button
+              key={type.id}
+              className={`p-2 border rounded ${
+                selectedTypes.includes(type.id) ? "bg-blue-500 text-white" : ""
+              }`}
+              onClick={() =>
+                setSelectedTypes((prev) =>
+                  prev.includes(type.id)
+                    ? prev.filter((id) => id !== type.id)
+                    : [...prev, type.id]
+                )
+              }
+            >
+              {type.name}
+            </button>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {pokemons.map((pokemon) => (
+          <Link
+            href={`/pokemon/${pokemon.pokedexId}`}
+            key={`${pokemon.pokedexId}-${pokemon.name}`}
+          >
+            <div className="border p-4 rounded cursor-pointer hover:shadow-lg">
+              <img
+                src={pokemon.image}
+                alt={pokemon.name}
+                className="w-full h-32 object-contain"
+              />
+              <h2 className="text-lg font-bold text-center">{pokemon.name}</h2>
+              <div className="flex justify-center gap-2 mt-2">
+                {pokemon.types.map((type) => (
+                  <img
+                    key={`${pokemon.pokedexId}-${type.id}`}
+                    src={type.image}
+                    alt={type.name}
+                    className="h-6"
+                  />
+                ))}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+      {loading && <p className="text-center mt-4">Loading...</p>}{" "}
     </div>
   );
 }

@@ -66,31 +66,46 @@ export default function PokemonDetails({ params }: { params: { id: string } }) {
       >
         Back to Pokedex
       </button>
-      <div className="border p-4 rounded bg-white shadow-lg hover:shadow-2xl transition-shadow duration-300">
+      <div className="relative border-4 border-yellow-500 rounded-lg bg-gradient-to-b from-yellow-300 via-white to-yellow-200 shadow-2xl p-6 hover:shadow-2xl transition-shadow duration-300">
+        <h1 className="absolute top-2 left-2 bg-yellow-500 text-white text-2xl font-bold px-4 py-1 rounded-tl-lg rounded-br-lg">
+          {pokemon.name}
+        </h1>
+
         <img
           src={pokemon.image}
           alt={pokemon.name}
-          className="w-full h-64 object-contain"
+          className="w-full h-64 object-contain rounded-lg border-2 border-yellow-500"
         />
-        <h1 className="text-4xl font-bold text-center">{pokemon.name}</h1>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+
+        <div className="grid grid-cols-2 gap-4 mt-4 bg-white p-4 rounded-lg border border-gray-300 shadow-inner">
           {Object.entries(pokemon.stats).map(([key, value]) => (
-            <div key={key} className="flex justify-between">
-              <span>{key}</span>
+            <div
+              key={key}
+              className="flex justify-between text-sm font-bold tracking-wider"
+            >
+              <span className="capitalize">{key}</span>
               <span>{value}</span>
             </div>
           ))}
         </div>
-        <h2 className="text-2xl font-bold mt-6">Evolutions</h2>
-        <div className="flex gap-4 mt-2">
+
+        <h2 className="text-xl font-bold text-center text-gray-700 mt-6">
+          Evolutions
+        </h2>
+        <div className="flex gap-4 mt-2 justify-center">
           {pokemon.evolutions.map((evolution) => (
-            <div key={evolution.pokedexId} className="text-center">
+            <div
+              key={evolution.pokedexId}
+              className="text-center bg-white p-2 rounded-lg border border-gray-200 shadow-md"
+            >
               <img
                 src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${evolution.pokedexId}.png`}
                 alt={evolution.name}
                 className="h-16 w-16 object-contain"
               />
-              <p>{evolution.name}</p>
+              <p className="text-sm font-bold text-gray-700">
+                {evolution.name}
+              </p>
             </div>
           ))}
         </div>

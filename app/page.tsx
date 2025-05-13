@@ -89,7 +89,9 @@ export default function Home() {
 
   return (
     <div className="p-4">
-      <h1 className="text-4xl font-bold text-center mb-6">Pokedex</h1>
+      <h1 className="text-4xl font-bold text-center mb-6 text-white">
+        Pokedex
+      </h1>
       <div className="mb-4">
         <TextField
           variant="outlined"

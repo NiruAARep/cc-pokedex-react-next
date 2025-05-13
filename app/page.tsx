@@ -5,6 +5,7 @@ import Link from "next/link";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import CatchingPokemonIcon from "@mui/icons-material/CatchingPokemon";
+import { CircularProgress } from "@mui/material";
 
 interface PokemonType {
   id: number;
@@ -169,7 +170,11 @@ export default function Home() {
         ))}
       </div>
 
-      {loading && <p className="text-center mt-4">Loading...</p>}
+      {loading && (
+        <div className="flex items-center justify-center h-screen">
+          <CircularProgress />
+        </div>
+      )}
     </div>
   );
 }

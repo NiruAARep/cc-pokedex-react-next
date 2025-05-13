@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { CircularProgress } from "@mui/material";
 
 interface Stats {
   HP: number;
@@ -51,7 +52,11 @@ export default function PokemonDetails({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <CircularProgress />
+      </div>
+    );
   }
 
   if (!pokemon) {

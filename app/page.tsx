@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
+import CatchingPokemonIcon from "@mui/icons-material/CatchingPokemon";
 
 interface PokemonType {
   id: number;
@@ -88,18 +91,28 @@ export default function Home() {
     <div className="p-4">
       <h1 className="text-4xl font-bold text-center mb-6">Pokedex</h1>
       <div className="mb-4">
-        <input
-          type="text"
+        <TextField
+          variant="outlined"
+          fullWidth
           placeholder="Search by name"
-          className="border p-2 w-full mb-4"
           onChange={(e) => setNameFilter(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <CatchingPokemonIcon />
+              </InputAdornment>
+            ),
+          }}
+          className="mb-4"
         />
         <div className="flex flex-wrap gap-2">
           {types.map((type) => (
             <button
               key={type.id}
-              className={`p-2 border rounded ${
-                selectedTypes.includes(type.id) ? "bg-blue-500 text-white" : ""
+              className={`p-2 mt-2 border rounded-lg text-sm font-medium flex items-center gap-2 transition-all duration-300 ${
+                selectedTypes.includes(type.id)
+                  ? "bg-blue-500 text-white shadow-lg scale-105"
+                  : "bg-gray-100 text-gray-700 hover:bg-blue-100 hover:text-blue-700"
               }`}
               onClick={() =>
                 setSelectedTypes((prev) =>
@@ -109,6 +122,7 @@ export default function Home() {
                 )
               }
             >
+              <img src={type.image} alt={type.name} className="h-6 w-6" />
               {type.name}
             </button>
           ))}
